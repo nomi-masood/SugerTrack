@@ -1,0 +1,5 @@
+{
+  "name": "SugarTrack Web",
+  "description": "A comprehensive blood sugar tracking application with unit conversion, history management, data visualization, and AI-powered insights.",
+  "requestFramePermissions": []
+}
