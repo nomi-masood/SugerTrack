@@ -76,6 +76,10 @@ export const SugarProvider = ({ children }: { children?: ReactNode }) => {
     setRecords(prev => prev.filter(r => r.id !== id));
   };
 
+  const deleteRecords = (ids: string[]) => {
+    setRecords(prev => prev.filter(r => !ids.includes(r.id)));
+  };
+
   const exportData = () => {
     const dataStr = JSON.stringify(records, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -111,6 +115,7 @@ export const SugarProvider = ({ children }: { children?: ReactNode }) => {
       addRecord, 
       updateRecord,
       deleteRecord, 
+      deleteRecords,
       exportData, 
       importData, 
       theme, 

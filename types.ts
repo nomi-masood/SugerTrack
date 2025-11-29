@@ -26,6 +26,7 @@ export interface AppState {
   addRecord: (record: Omit<SugarRecord, 'id'>) => void;
   updateRecord: (record: SugarRecord) => void;
   deleteRecord: (id: string) => void;
+  deleteRecords: (ids: string[]) => void;
   importData: (jsonString: string) => boolean;
   exportData: () => void;
   theme: 'light' | 'dark';

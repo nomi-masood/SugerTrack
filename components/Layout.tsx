@@ -93,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               }`
             }
           >
-            {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
+            {React.cloneElement(item.icon as React.ReactElement<any>, { size: 24 })}
             <span>{item.label}</span>
           </NavLink>
         ))}

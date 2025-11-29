@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSugar } from '../context/SugarContext';
 import { CATEGORIES, CONVERSION_FACTOR } from '../constants';
-import { Search, Filter, Trash2, Calendar, Edit2, X, ArrowLeftRight, Save, ChevronDown } from 'lucide-react';
+import { Search, Filter, Trash2, Calendar, Edit2, X, ArrowLeftRight, Save, ChevronDown, CheckSquare, Square } from 'lucide-react';
 import { SugarRecord, TimeCategory, Unit } from '../types';
 
 const History = () => {
-  const { records, deleteRecord, updateRecord } = useSugar();
+  const { records, deleteRecord, deleteRecords, updateRecord } = useSugar();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -80,6 +81,32 @@ const History = () => {
     setEditingId(null); // Close modal
   };
 
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.size} selected records?`)) {
+      deleteRecords(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === filteredRecords.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRecords.map(r => r.id)));
+    }
+  };
+
   return (
     <div className="space-y-6 relative">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -87,6 +114,16 @@ const History = () => {
            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">History Log</h2>
            <p className="text-slate-500 dark:text-slate-400 text-sm">{records.length} total records found</p>
         </div>
+        
+        {selectedIds.size > 0 && (
+          <button 
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm animate-in fade-in zoom-in duration-200"
+          >
+            <Trash2 size={18} />
+            Delete Selected ({selectedIds.size})
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -114,13 +151,43 @@ const History = () => {
         </div>
       </div>
 
+      {/* Select All Toggle (Optional but helpful context for bulk actions) */}
+      {filteredRecords.length > 0 && (
+          <div className="flex items-center gap-2 px-1">
+             <button 
+                onClick={handleSelectAll}
+                className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2"
+             >
+                {selectedIds.size > 0 && selectedIds.size === filteredRecords.length ? <CheckSquare size={16} /> : <Square size={16} />}
+                {selectedIds.size === filteredRecords.length ? 'Deselect All' : 'Select All'}
+             </button>
+          </div>
+      )}
+
       {/* List */}
       <div className="space-y-3">
         {filteredRecords.length > 0 ? (
           filteredRecords.map((record) => (
-            <div key={record.id} className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
+            <div 
+                key={record.id} 
+                className={`bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border transition-all group flex gap-4 ${
+                    selectedIds.has(record.id) 
+                        ? 'border-teal-500 ring-1 ring-teal-500/20 dark:border-teal-500' 
+                        : 'border-slate-100 dark:border-slate-700 hover:shadow-md'
+                }`}
+            >
+              {/* Checkbox */}
+              <div className="flex items-center">
+                 <div 
+                    onClick={() => toggleSelection(record.id)}
+                    className={`cursor-pointer p-1 rounded-md transition-colors ${selectedIds.has(record.id) ? 'text-teal-600 dark:text-teal-400' : 'text-slate-300 dark:text-slate-600 hover:text-slate-400'}`}
+                 >
+                    {selectedIds.has(record.id) ? <CheckSquare size={24} /> : <Square size={24} />}
+                 </div>
+              </div>
+
+              <div className="flex-1 flex justify-between items-start">
+                <div className="flex-1 cursor-pointer" onClick={() => toggleSelection(record.id)}>
                   <div className="flex items-center gap-3 mb-1">
                     <span className="px-2 py-1 bg-teal-50 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase rounded-md tracking-wide">
                         {record.category}
@@ -148,16 +215,17 @@ const History = () => {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 pl-4 border-l border-slate-100 dark:border-slate-700">
                     <button 
-                        onClick={() => handleEditClick(record)}
+                        onClick={(e) => { e.stopPropagation(); handleEditClick(record); }}
                         className="p-2 text-slate-300 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-colors"
                         title="Edit Record"
                     >
                         <Edit2 size={18} />
                     </button>
                     <button 
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
                             if(window.confirm('Delete this record?')) deleteRecord(record.id);
                         }}
                         className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
