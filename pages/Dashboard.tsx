@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSugar } from '../context/SugarContext';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Brush } from 'recharts';
 import { CONVERSION_FACTOR } from '../constants';
 import { TrendingUp, Activity, FileText } from 'lucide-react';
 
@@ -11,7 +11,7 @@ const Dashboard = () => {
   const chartData = useMemo(() => {
     return [...records]
       .sort((a, b) => a.timestamp - b.timestamp)
-      .slice(-15) // Last 15 records
+      .slice(-100) // Increased to last 100 records to allow panning through history
       .map(r => ({
         date: new Date(r.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }),
         value: r.unit === 'mmol/L' ? r.value * CONVERSION_FACTOR : r.value,
@@ -114,6 +114,14 @@ const Dashboard = () => {
                 strokeWidth={3} 
                 dot={{ r: 4, fill: '#0d9488', strokeWidth: 2, stroke: theme === 'dark' ? '#0f172a' : '#fff' }} 
                 activeDot={{ r: 6 }} 
+              />
+              <Brush 
+                dataKey="date" 
+                height={30} 
+                stroke="#0d9488"
+                fill={theme === 'dark' ? '#1e293b' : '#f1f5f9'}
+                tickFormatter={() => ''}
+                startIndex={Math.max(0, chartData.length - 15)}
               />
             </LineChart>
           </ResponsiveContainer>
