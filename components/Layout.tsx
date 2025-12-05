@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, History, Settings, Activity, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, History, Settings, Activity, Moon, Sun, Info } from 'lucide-react';
 import { useSugar } from '../context/SugarContext';
 
 interface LayoutProps {
@@ -15,6 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { to: "/add", icon: <PlusCircle size={20} />, label: "Add" },
     { to: "/history", icon: <History size={20} />, label: "History" },
     { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
+    { to: "/about", icon: <Info size={20} />, label: "About" },
   ];
 
   return (
