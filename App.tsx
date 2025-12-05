@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { SugarProvider } from './context/SugarContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -11,7 +11,7 @@ import About from './pages/About';
 const App = () => {
   return (
     <SugarProvider>
-      <HashRouter>
+      <BrowserRouter>
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -22,7 +22,7 @@ const App = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
-      </HashRouter>
+      </BrowserRouter>
     </SugarProvider>
   );
 };
